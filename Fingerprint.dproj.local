@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016.05.19 14:13:30.978.pas,C:\Users\slavik\Documents\RAD Studio\Projects\Unit1.pas=C:\Users\slavik\Desktop\Unit1.pas</Transaction>
+    <Transaction>2016.05.19 14:13:30.978.dfm,C:\Users\slavik\Documents\RAD Studio\Projects\Unit1.dfm=C:\Users\slavik\Desktop\Unit1.dfm</Transaction>
+    <Transaction>2016.05.19 14:13:34.711.dproj,C:\Users\slavik\Documents\RAD Studio\Projects\Project1.dproj=C:\Users\slavik\Desktop\Project1.dproj</Transaction>
+    <Transaction>2016.05.19 14:20:10.040.pas,C:\Users\slavik\Desktop\Unit1.pas=C:\Users\slavik\Desktop\Fauthentication.pas</Transaction>
+    <Transaction>2016.05.19 14:20:10.040.dfm,C:\Users\slavik\Desktop\Unit1.dfm=C:\Users\slavik\Desktop\Fauthentication.dfm</Transaction>
+    <Transaction>2016.05.19 14:20:37.689.pas,C:\Users\slavik\Desktop\Unit2.pas=C:\Users\slavik\Desktop\HelloForm.pas</Transaction>
+    <Transaction>2016.05.19 14:20:37.689.dfm,C:\Users\slavik\Desktop\Unit2.dfm=C:\Users\slavik\Desktop\HelloForm.dfm</Transaction>
+    <Transaction>2016.05.19 14:20:57.496.pas,C:\Users\slavik\Desktop\HelloForm.pas=D:\project\Fingerprint\HelloForm.pas</Transaction>
+    <Transaction>2016.05.19 14:20:57.496.dfm,C:\Users\slavik\Desktop\HelloForm.dfm=D:\project\Fingerprint\HelloForm.dfm</Transaction>
+    <Transaction>2016.05.19 14:21:02.657.dproj,C:\Users\slavik\Desktop\Project1.dproj=D:\project\Fingerprint\Project1.dproj</Transaction>
+    <Transaction>2016.05.19 14:28:00.516.dproj,D:\project\Fingerprint\Project1.dproj=D:\project\Fingerprint\Fingerprint.dproj</Transaction>
+    <Transaction>2016.05.19 14:34:45.437.dproj,D:\project\Fingerprint\Fingerprint.dproj=D:\project\Fingerprint\Fingerprint.dproj</Transaction>
+    <Transaction>2016.05.20 16:15:35.273.pas,D:\project\Fingerprint\ZKFPEngXControl_TLB.pas=</Transaction>
+  </Transactions>
+</BorlandProject>
