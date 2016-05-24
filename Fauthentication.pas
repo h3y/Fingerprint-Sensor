@@ -1,11 +1,10 @@
-unit Fauthentication;
+Ôªøunit Fauthentication;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ZKFPEngXControl_TLB, ExtCtrls, OleCtrls, WideStrings,
-  DBXMySql, DB, SqlExpr;
+  Dialogs, StdCtrls, ZKFPEngXControl_TLB, ExtCtrls, OleCtrls, WideStrings;
 
 type
   TForm1 = class(TForm)
@@ -34,12 +33,12 @@ type
 
   private
     fpcHandle: Integer;
-    FFingerName: TStringList;
     sRegTemplate: WideString;
     sRegTemplate10: WideString;
     FID: Integer;
+    strArray  : Array[1..100,1..2] of String;
+    keyTemp, nameTemp: WideString;
     const EngineVersion: WideString = '10';
-
   public
     { Public declarations }
   end;
@@ -53,124 +52,116 @@ implementation
 {$R *.dfm}
 
 procedure TForm1.FormCreate(Sender: TObject);
-  begin
-    DeviceStatus := False;
-    PanelStatus.Color := clRed;
-    fpcHandle := ZKFPEngX1.CreateFPCacheDB;
-    FFingerName := TStringList.Create;
-    FID:=1;
+begin
+  DeviceStatus := False;
+  PanelStatus.Color := clRed;
+  fpcHandle := ZKFPEngX1.CreateFPCacheDB;
+  FID:=1;
+end;
+
+
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+    ZKFPEngX1.FreeFPCacheDB(fpcHandle);
+    ZKFPEngX1.EndEngine();
+end;
+
+procedure TForm1.InitDeviceBtnClick(Sender: TObject);
+var  f: TextFile; // —Ñ–∞–π–ª
+    fName: String; // –∏–º—è —Ñ–∞–π–ª–∞
+begin
+  if ZKFPEngX1.InitEngine = 0 then begin
+     ZKFPEngX1.FPEngineVersion := EngineVersion;
+     SensorNum.Text := IntToStr(ZKFPEngX1.SensorCount);
+     SensorIndex.Text := IntToStr(ZKFPEngX1.SensorIndex);
+     SensorSN.Text := ZKFPEngX1.SensorSN;
+     PanelStatus.Color := clLime;
+     fName:='data.txt';
+     AssignFile(f, fName);
+     Reset(f);
+     While not EOF(f) do // –ø–æ–∫–∞ –Ω–µ –∫–æ–Ω–µ—Ü —Ñ–∞–π–ª–∞ –¥–µ–ª–∞—Ç—å —Ü–∏–∫–ª:
+     begin
+        readLn(f, keyTemp);
+        readLn(f, nameTemp);
+        strArray[FID,1] :=  keyTemp;
+        strArray[FID,2] :=  nameTemp;
+        ZKFPEngX1.AddRegTemplateStrToFPCacheDB(fpcHandle, FID, keyTemp);
+        Inc(FID); 
+     end;
+     Flush(f);
+      CloseFile(f);
+     InitDeviceBtn.Enabled := False;
+     RegisterBtn.Enabled := True;
+     StatusBar.Items.Add('Init device OK!');
   end;
+end;
 
-
-
-  procedure TForm1.FormDestroy(Sender: TObject);
-  begin
-      FFingerName.Free;
-      ZKFPEngX1.FreeFPCacheDB(fpcHandle);
-      ZKFPEngX1.EndEngine();
+procedure TForm1.RegisterBtnClick(Sender: TObject);
+begin
+  if (firstName.Text = '')  then begin
+     MessageDlg('Please enter first name ', mtInformation, [mbOK], 0);
+     Exit;
   end;
-
-  procedure TForm1.InitDeviceBtnClick(Sender: TObject);
-  begin
-    if ZKFPEngX1.InitEngine = 0 then begin
-       ZKFPEngX1.FPEngineVersion := EngineVersion;
-       SensorNum.Text := IntToStr(ZKFPEngX1.SensorCount);
-       SensorIndex.Text := IntToStr(ZKFPEngX1.SensorIndex);
-       SensorSN.Text := ZKFPEngX1.SensorSN;
-       PanelStatus.Color := clLime;
-       InitDeviceBtn.Enabled := False;
-       RegisterBtn.Enabled := True;
-       StatusBar.Items.Add('Init device OK!');
-    end;
-  end;
-
-  procedure TForm1.RegisterBtnClick(Sender: TObject);
-  begin
-    if (firstName.Text = '')  then begin
-       MessageDlg('Please enter first name ', mtInformation, [mbOK], 0);
-       Exit;
-    end;
-    ZKFPEngX1.CancelEnroll;
-    ZKFPEngX1.EnrollCount := 3;
-    ZKFPEngX1.BeginEnroll;
-    StatusBar.Items.Add('Register start');
-  end;
+  ZKFPEngX1.CancelEnroll;
+  ZKFPEngX1.EnrollCount := 3;
+  ZKFPEngX1.BeginEnroll;
+  StatusBar.Items.Add('Register start');
+end;
 
 
 
 procedure TForm1.ZKFPEngX1Capture(ASender: TObject; ActionResult: WordBool; ATemplate: OleVariant);
 var
-  ID, I: Integer;
+  ID: Integer;
   Score, ProcessNum: Integer;
-  RegChange: WordBool;
-  iNew: Integer;
-  sTemp,bTemp: WideString;
-  Temp: WideString;
-  f: TextFile; // Ù‡ÈÎ
-  fName: String[80]; // ËÏˇ Ù‡ÈÎ‡
-  pTemplate: OleVariant;
-  bTemplate: OleVariant;
-  strArray  : Array of String;
-
+  j: Integer;
+  msg: String;
 begin
     StatusBar.Items.Add('Check Register');
      ProcessNum := 0;
      Score := 8;
-     fName:='data.txt';
-     AssignFile(f, fName);
-     Reset(f);
-      
-    While not EOF(f) do // ÔÓÍ‡ ÌÂ ÍÓÌÂˆ Ù‡ÈÎ‡ ‰ÂÎ‡Ú¸ ˆËÍÎ:
-    begin
-        read(f, sTemp);
-        FFingerName.Delimiter:=';;';
-        FFingerName.Text :=  sTemp;
-       //ZKFPEngX1.AddRegTemplateStrToFPCacheDB(fpcHandle, FID, sTemp);
-    end;
-
-    {while FID <100000 do begin
-        Inc(FID);
-       ZKFPEngX1.AddRegTemplateStrToFPCacheDB(fpcHandle, FID, sTemp);
-    end;}
       ID := ZKFPEngX1.IdentificationInFPCacheDB(fpcHandle, ATemplate, Score, ProcessNum);
     if ID = -1 then
-        MessageDlg('œÓÏËÎÍ‡ ÒÍ‡ÌÛ ‚≥‰ÔÂ˜‡ÚÍ‡?Score = ' + IntToStr(Score) + ' Processed Number = ' + IntToStr(ProcessNum), mtInformation, [mbOK], 0)
+        MessageDlg('–ü–æ–º–∏–ª–∫–∞ —Å–∫–∞–Ω—É –≤—ñ–¥–ø–µ—á–∞—Ç–∫–∞ÔºÅScore = ' + IntToStr(Score) + ' Processed Number = ' + IntToStr(ProcessNum), mtInformation, [mbOK], 0)
     else begin
-        MessageDlg('Identify Succeed!', mtInformation, [mbOK], 0);
+        for j := 1 to Length(strArray) do begin
+            if(j = ID) then begin
+                msg := 'Identify Succeed! Hello ' + strArray[ID,2] + ' your finger ID = '+ IntToStr(ID);
+                MessageDlg(msg, mtInformation, [mbOK], 0);
+                Exit;
+            end;
+        end;
     end;
 end;
 
 procedure TForm1.ZKFPEngX1Enroll(ASender: TObject; ActionResult: WordBool; ATemplate: OleVariant);
-  var
-    pTemplate: OleVariant;
-  begin
-    if (not ActionResult) then
-		 MessageDlg('Register failed', mtError, [mbOK], 0)
-	  else begin
-      //After enroll, you can get 9.0&10.0 template at the same time
-      sRegTemplate := ZKFPEngX1.GetTemplateAsStringEx('9');
-      sRegTemplate10 := ZKFPEngX1.GetTemplateAsStringEx('10');
-      if(Length(sRegTemplate) > 0) then begin
+begin
+  if (not ActionResult) then
+    MessageDlg('Register failed', mtError, [mbOK], 0)
+  else begin
+    //After enroll, you can get 9.0&10.0 template at the same time
+    sRegTemplate := ZKFPEngX1.GetTemplateAsStringEx('9');
+    sRegTemplate10 := ZKFPEngX1.GetTemplateAsStringEx('10');
+    if(Length(sRegTemplate) > 0) then begin
 
-        if(Length(sRegTemplate10) > 0) then
-          ZKFPEngX1.AddRegTemplateStrToFPCacheDB(fpcHandle, FID, sRegTemplate10)
-        else
-          MessageDlg('Register 10.0 failed, template length is zero', mtError, [mbOK], 0);
-       // ZKFPEngX1.RemoveRegTemplateFromFPCacheDB(fpcHandle, FID);
-        //ZKFPEngX1.AddRegTemplateToFPCacheDB(fpcHandle, FID, ATemplate);
-        SaveToFile(sRegTemplate10);
-        {pTemplate :=  ZKFPEngX1.DecodeTemplate1(sRegTemplate);
-        ZKFPEngX1.SaveTemplate('fingerprint.tpl', pTemplate);
-        FFingerName.AddObject(firstName.Text, TObject(FID));
-        Inc(FID);}
-        StatusBar.Items.Add('Register success');
-      end else
-       MessageDlg('Register Failed, template length is zero', mtError, [mbOK], 0)
-    end;
+      if(Length(sRegTemplate10) > 0) then
+        ZKFPEngX1.AddRegTemplateStrToFPCacheDB(fpcHandle, FID, sRegTemplate10)
+      else
+        MessageDlg('Register 10.0 failed, template length is zero', mtError, [mbOK], 0);
+
+      SaveToFile(sRegTemplate10);
+      strArray[FID,1] :=  sRegTemplate10;
+      strArray[FID,2] :=  firstName.Text;
+      Inc(FID);
+      StatusBar.Items.Add('Register success');
+    end else
+     MessageDlg('Register Failed, template length is zero', mtError, [mbOK], 0)
   end;
+end;
 
 procedure TForm1.ZKFPEngX1FeatureInfo(ASender: TObject; AQuality: Integer);
-    var
+var
   sTemp: string;
 begin
   sTemp := '';
@@ -185,29 +176,29 @@ begin
 end;
 
 procedure TForm1.ZKFPEngX1ImageReceived(ASender: TObject; var AImageValid: WordBool);
-  begin
-    with ZKFPEngX1 do
-      PrintImageAt(Self.Canvas.Handle, 500, 10, ImageWidth, ImageHeight);
-  end;
+begin
+  with ZKFPEngX1 do
+    PrintImageAt(Self.Canvas.Handle, 500, 10, ImageWidth, ImageHeight);
+end;
 
-  procedure TForm1.SaveToFile(str:WideString);
-  var
-   f:TextFile;
-   FileDir:String;
-  begin
-   FileDir:='data.txt';
+procedure TForm1.SaveToFile(str:WideString);
+var
+  f:TextFile;
+  FileDir:String;
+begin
+  FileDir:='data.txt';
   AssignFile(f,FileDir);
   if not FileExists(FileDir) then
-   begin
+  begin
     Rewrite(f);
     CloseFile(f);
-   end;
+  end;
   Append(f);
-  str := str + ';;' + firstName.Text;
   Writeln(f,str);
+  Writeln(f,firstName.Text);
   Flush(f);
   CloseFile(f);
-  end;
+end;
 
 end.
 
