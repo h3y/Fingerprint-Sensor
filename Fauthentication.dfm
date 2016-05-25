@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Authentication'
-  ClientHeight = 350
+  ClientHeight = 446
   ClientWidth = 808
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -71,8 +71,8 @@ object Form1: TForm1
     Text = 'SensorSN'
   end
   object ZKFPEngX1: TZKFPEngX
-    Left = 776
-    Top = 318
+    Left = 784
+    Top = 414
     Width = 24
     Height = 24
     OnFeatureInfo = ZKFPEngX1FeatureInfo
@@ -107,7 +107,7 @@ object Form1: TForm1
     Left = 8
     Top = 136
     Width = 431
-    Height = 201
+    Height = 302
     ItemHeight = 13
     TabOrder = 8
   end

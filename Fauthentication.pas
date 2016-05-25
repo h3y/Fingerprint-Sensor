@@ -127,7 +127,7 @@ begin
     else begin
         for j := 1 to Length(strArray) do begin
             if(j = ID) then begin
-                msg := 'Identify Succeed! Hello ' + strArray[ID,2] + ' your finger ID = '+ IntToStr(ID);
+                msg := 'Identify Succeed! Hello ' + strArray[ID,2] + ' your finger ID = '+ IntToStr(ID) + ' Score = ' + IntToStr(Score) + ' Processed Number = ' + IntToStr(ProcessNum);
                 MessageDlg(msg, mtInformation, [mbOK], 0);
                 Exit;
             end;
@@ -136,10 +136,19 @@ begin
 end;
 
 procedure TForm1.ZKFPEngX1Enroll(ASender: TObject; ActionResult: WordBool; ATemplate: OleVariant);
+var ID: Integer;
+    Score, ProcessNum: Integer;
 begin
   if (not ActionResult) then
     MessageDlg('Register failed', mtError, [mbOK], 0)
   else begin
+    ProcessNum := 0;
+    Score := 8;
+    ID := ZKFPEngX1.IdentificationInFPCacheDB(fpcHandle, ATemplate, Score, ProcessNum); 
+    if(ID > 0) then begin 
+    MessageDlg('This finger exist', mtError, [mbOK], 0);
+         Exit;
+    end;
     //After enroll, you can get 9.0&10.0 template at the same time
     sRegTemplate := ZKFPEngX1.GetTemplateAsStringEx('9');
     sRegTemplate10 := ZKFPEngX1.GetTemplateAsStringEx('10');
@@ -166,7 +175,7 @@ var
 begin
   sTemp := '';
   if ZKFPEngX1.IsRegister then
-     sTemp := 'Register Status: still press finger' + IntToStr(ZKFPEngX1.EnrollIndex) + 'times!';
+     sTemp := 'Register Status: still press finger ' + IntToStr(ZKFPEngX1.EnrollIndex) + ' times!';
   sTemp := sTemp + ' Fingerprint quality';
   if AQuality <> 0 then
      sTemp := sTemp + ' not good, quality=' + IntToStr(ZKFPEngX1.LastQuality)
